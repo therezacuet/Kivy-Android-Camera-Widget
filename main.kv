@@ -1,0 +1,171 @@
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+WindowManager:
+    transition: FadeTransition()
+    WelcomeWindow:
+        name: 'welcome_window'
+        id: welcome_window
+    PhotoIntroWindow:
+        name: 'photo_intro_window'
+        id: photo_intro_window
+    PhotoWindow:
+        name: 'photo_window'
+        id: photo_window
+
+    BlurredWindow:
+        name: 'blurred_window'
+        id: blurred_window
+
+<ImageButton@ButtonBehavior+Image>:
+
+<LabelButton@ButtonBehavior+Label>:
+
+<BackgroundColor@Widget>:
+    background_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+<BackgroundLabel@Label+BackgroundColor>:
+
+<BackgroundImage@Image+BackgroundColor>:
+
+<BackgroundLabelButton@LabelButton+BackgroundColor>:
+    color: 0, 0, 0, 1
+
+<BackgroundImageButton@ImageButton+BackgroundColor>:
+
+<BackgroundToggleButton@ToggleButton+BackgroundColor>:
+
+<WelcomeWindow>:
+    BoxLayout:
+        orientation: 'vertical'
+        rows: 2
+        BackgroundImageButton:
+            id: welcome_image
+            background_color: 1, 0.81, .98, 1
+            source: "Picture_1.png"
+            size: self.texture_size
+            allow_stretch: True
+            keep_ratio: True
+            on_release: app.root.current = "photo_intro_window"
+
+        BackgroundLabelButton:
+            size_hint_y: 0.1
+            size: self.texture_size
+            text_size: self.width, None
+            halign: 'center'
+            background_color: .53, 0.81, .98, 1
+            text: "Welcome"
+            color: 0, 0, 0, 1
+            bold: True
+            on_release: app.root.current = "photo_intro_window"
+
+<PhotoIntroWindow>:
+
+    GridLayout:
+        orientation: 'vertical'
+        rows:4
+
+        BackgroundImage:
+            background_color: 1, 0.81, .98, 1
+            source: "Picture_2.png"
+            allow_stretch: True
+            size: self.texture_size
+
+        BackgroundLabelButton:
+            background_color: .43, 0.91, .98, 1
+            size_hint: root.width, 0.1
+            text: "make my photo blurred"
+            on_release:
+                root.manager.transition.duration = 0
+                app.root.current = "photo_window"
+
+        BackgroundLabelButton:
+            background_color: .53, 0.81, .98, 1
+            size_hint: root.width, 0.1
+            text: "select a blurred photo"
+            on_release: app.root.current = "welcome_window"
+
+        BackgroundLabelButton:
+            background_color: .63, 0.61, .98, 1
+            size_hint: root.width, 0.1
+            text: "Do not need a blurred photo"
+            on_release: app.root.current = "welcome_window"
+
+<PhotoWindow>:
+    on_pre_enter: camera.index = 0
+    on_pre_enter: camera.play = True
+    on_pre_enter: PhotoWindow_save_button.text = 'save'
+    on_pre_leave: camera.index = -1
+    on_pre_leave: camera.play = False
+
+    BoxLayout:
+        kernel_size: kernel_size
+        activate_blur_flag: activate_blur_flag
+        orientation: 'vertical'
+        MyCamera:
+
+            id: camera
+            orientation: 'vertical'
+            resolution: (960, 1280)
+            size_hint: 1, .9
+            play: False
+            index: -1
+
+        GridLayout:
+            rows: 2
+            size_hint: 1, 0.15
+
+            Slider:
+                id: kernel_size
+                orientation: 'horizontal'
+                step: 1
+                value: 5
+                range: 0, 10
+                value_track: True
+                cursor_size: (40, 40)
+
+        BoxLayout:
+            rows:1
+            size_hint: 1, 0.05
+            BackgroundLabelButton:
+                id: PhotoWindow_save_button
+                background_color: .83, 0.61, .98, 1
+                color: 0, 0, 0, 1
+                text: "save"
+                size: self.texture_size
+                on_release: root.capture()
+
+            BackgroundToggleButton:
+                id: activate_blur_flag
+                background_color: .23, 0.11, .98, 1
+                color: 1, 0, 0, 1
+                text: "activate"
+                state: 'normal'
+
+            BackgroundLabelButton:
+                id: PhotoWindow_return_button
+                background_color: .83, 0.61, .98, 1
+                color: 0, 0, 0, 1
+                text: "return"
+                size: self.texture_size
+                on_press: if self.text == 'return': app.root.current = "photo_intro_window"
+                on_release: if self.text == 're-take': root.slider_default_values()
+
+<BlurredWindow>:
+    BoxLayout:
+        orientation: 'vertical'
+        rows:2
+
+        Label:
+            size_hint_y: None
+            text: "The Saved Picture, Good Bye"
+            font_size: 20
+
+
+        Image:
+            id: original_image
+            size: self.texture_size
