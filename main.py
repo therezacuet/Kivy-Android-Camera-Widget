@@ -43,10 +43,10 @@ class CameraClick(BoxLayout):
         print("Captured")
 
 
-class TestCamera(App):
+class KivyCamera(App):
 
     def build(self):
         return CameraClick()
 
 
-TestCamera().run()
+KivyCamera().run()
